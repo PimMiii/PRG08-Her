@@ -1,0 +1,56 @@
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,maximum-scale=1.0, user-scalable=no"
+  />
+  <link rel="stylesheet" href="./style.css" />
+  <!-- Load three.js -->
+  <script
+    defer
+    src="https://unpkg.com/@tensorflow/tfjs-core@2.1.0/dist/tf-core.js"
+  ></script>
+  <script
+    defer
+    src="https://unpkg.com/@tensorflow/tfjs-converter@2.1.0/dist/tf-converter.js"
+  ></script>
+
+  <!-- GPU backend -->
+  <script
+    defer
+    src="https://unpkg.com/@tensorflow/tfjs-backend-webgl@2.1.0/dist/tf-backend-webgl.js"
+  ></script>
+  <!-- CPU backend -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-cpu"></script> -->
+  <!-- WASM backend -->
+  <!-- <script src="https://unpkg.com/@tensorflow/tfjs-backend-wasm@2.1.0/dist/tf-backend-wasm.js"></script> -->
+
+  <script
+    defer
+    src="https://unpkg.com/@tensorflow-models/handpose@0.0.6/dist/handpose.js"
+  ></script>
+  <script defer src="./index.js"></script>
+</head>
+
+<body>
+  <h1>HANDPOSE data gathering</h1>
+  <div id="container">
+    <video id="video" playsinline></video>
+    <canvas id="output"></canvas>
+  </div>
+  <div id="hint">
+    <h2 id="hintText">Click a pose button to start recording poses</h2>
+  </div>
+  <div id="buttons">
+    <button id="closedFistBTN">Pose: closed fist</button>
+    <button id="countOneBTN">Pose: count 1 (index finger)</button>
+    <button id="countTwoBTN">Pose: count 2</button>
+    <button id="countThreeBTN">Pose: count 3</button>
+    <button id="countFourBTN">Pose: count 4</button>
+    <button id="countFiveBTN">Pose: count 5</button>
+    <button id="thumbUpBTN">Pose: thumb up</button>
+    <button id="exportBTN">export saved poses</button>
+  </div>
+  <h2>Landmarks array</h2>
+  <div id="array">handpose output console</div>
+</body>
