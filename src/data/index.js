@@ -173,7 +173,7 @@ async function predictLandmarks() {
   if (predictions.length > 0) {
     drawHand(ctx, predictions[0].landmarks, predictions[0].annotations);
     if (tag) {
-      console.log(predictions[0].landmarks);
+      //console.log(predictions[0].landmarks);
       const boundingBox = predictions[0].boundingBox;
       const pose = {
         tag: tag,
