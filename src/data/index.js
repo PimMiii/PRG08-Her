@@ -192,7 +192,7 @@ async function predictLandmarks() {
           []
         ),
       };
-      console.log(pose);
+      //console.log(pose);
       savedPoses.push(pose);
     }
   }
