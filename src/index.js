@@ -59,7 +59,7 @@ const endScreenText = document.querySelector("#endScreenText");
 const endScreenBTN = document.querySelector("#endScreenBTN");
 
 // content setup
-let currentScene = 4;
+let currentScene = 2;
 let contentLength;
 let activeContent = 0;
 let scenes = [
