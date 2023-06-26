@@ -22,14 +22,15 @@ let questions = null;
 
 // setup overlay
 const overlay = document.querySelector("#overlay");
-const question = document.querySelector("#question");
+const questionDisplay = document.querySelector("#question");
+const questionText = document.querySelector("#questionText");
 // answers
-const answers = document.querySelector("#answers");
+const answersDisplay = document.querySelector("#answersDisplay");
 const answerOne = document.querySelector("#answerOne");
-const answerTwo = document.querySelector("#answerOne");
-const answerThree = document.querySelector("#answerOne");
-const answerFour = document.querySelector("#answerOne");
-const clockDisplay = document.querySelector("#clockDisplay");
+const answerTwo = document.querySelector("#answerTwo");
+const answerThree = document.querySelector("#answerThree");
+const answerFour = document.querySelector("#answerFour");
+
 // explainer
 const explainer = document.querySelector("#explainer");
 const explainerTitle = document.querySelector("#explainerTitle");
@@ -41,9 +42,36 @@ const poseDisplay = document.querySelector("#poseDisplay");
 const confidenceDisplay = document.querySelector("#confidenceDisplay");
 
 // content setup
+let currentScene = 4;
 let contentLength;
 let activeContent = 0;
 scenes = [
+  {
+    title: "confirmation",
+    content: [
+      {
+        title: "Stop Game",
+        text: "Are you sure you want to stop the game? <br/><strong><font color='aqua'>accept: Thumbs up</font> | <font color='crimson'>Cancel: Closed fist</font></strong>",
+      },
+      {
+        title: "Skip Question",
+        text: "Are you sure you want to skip this question?<br/><strong><font color='aqua'>accept: Thumbs up</font> | <font color='crimson'>Cancel: Closed fist</font></strong>",
+      },
+    ],
+  },
+  {
+    title: "endscreen",
+    content: [
+      {
+        title: "YOU WIN",
+        text: "<strong><font color='aqua'>Congratulations!<br/>You are a Handpose Millonaire!</font><strong><br/>To play again please reload the page.",
+      },
+      {
+        title: "GAME OVER",
+        text: "<strong><font color='crimson'>Sorry, you've answered too many questions wrong.<br/>You are not the Handpose Millionaire.</font><strong><br/>To play again please reload the page.",
+      },
+    ],
+  },
   {
     title: "explainer",
     content: [
@@ -110,10 +138,14 @@ scenes = [
     ],
   },
 ];
-let currentScene = 0;
+
 let savedPredictions = [];
 let screen;
 const saveBuffer = 50;
+let correctQuestions = [];
+let incorrectQuestions = [];
+let skippedQuestions = [];
+let awaitingConfirmation = null;
 
 // prediction Flag
 let predictFlag = false;
@@ -152,26 +184,54 @@ function drawScene() {
   const scene = scenes[currentScene];
   contentLength = scene.content.length;
   screen = scene.content[activeContent];
-  switch (currentScene) {
-    case 0:
+  switch (scenes[currentScene].title) {
+    case "confirmation":
+      break;
+    case "explainer":
       explainer.hidden = false;
       explainerTitle.innerHTML = screen.title;
       explainerParagraph.innerHTML = screen.text;
       explainerBTN.innerHTML = screen.button;
       explainerBTN.disabled = false;
       break;
-    case 1:
+    case "pose-explainer":
       explainer.hidden = false;
       classifierResult.hidden = false;
       explainerTitle.innerHTML = screen.title;
       explainerParagraph.innerHTML = screen.text;
       explainerBTN.innerHTML = screen.button;
+      // turn off the button as we make switch to gesture navigation
+      explainerBTN.disabled = true;
+      explainerBTN.hidden = true;
+      // turn on landmark predictions
+      predictFlag = true;
+      break;
+    case "questions":
+      // turn off explainer screens
+      explainer.hidden = true;
+      classifierResult.hidden = false;
       explainerBTN.disabled = true;
       explainerBTN.hidden = true;
       predictFlag = true;
+
+      // turn on question and answers
+      questionDisplay.hidden = false;
+      console.log(screen);
+      questionText.innerHTML = screen.question.text;
+
+      //answers
+      answersDisplay.hidden = false;
+      answerOne.innerHTML = screen.answers[0];
+      answerOne.hidden = false;
+      answerTwo.innerHTML = screen.answers[1];
+      answerTwo.hidden = false;
+      answerThree.innerHTML = screen.answers[2];
+      answerThree.hidden = false;
+      answerFour.innerHTML = screen.answers[3];
+      answerFour.hidden = false;
       break;
     default:
-      currentScene = 0;
+      currentScene = 1;
       break;
   }
 }
@@ -238,14 +298,12 @@ async function handleAnswer(answer) {
       await checkPose(answer);
       break;
     case "questions":
-      checkAnswer(answer);
+      await checkAnswer(answer);
       break;
     default:
       console.log("something went wrong");
       break;
   }
-
-  predictFlag = true;
 }
 
 async function checkPose(answer) {
@@ -259,6 +317,113 @@ async function checkPose(answer) {
     savedPredictions = [];
   } else {
     console.log(`wrong pose| expected: ${screen.tag}, answered: ${answer}`);
+  }
+}
+
+function answeredCorrectly(asnwerNode) {
+  correctQuestions.push(activeContent);
+  asnwerNode.style.backgroundColor = "rgba(63, 195, 128, 0.5)";
+  savedPredictions = [];
+  setTimeout(() => {
+    explainerClickHandler();
+    asnwerNode.style.backgroundColor = "rgba(46,26,71,0.5)";
+    predictFlag = true;
+  }, 1000);
+}
+
+function answeredIncorrectly(answerNode) {
+  incorrectQuestions.push(activeContent);
+  answerNode.style.backgroundColor = "crimson";
+  savedPredictions = [];
+  setTimeout(() => {
+    explainerClickHandler();
+    answerNode.style.backgroundColor = "rgba(46,26,71,0.5)";
+    predictFlag = true;
+  }, 1000);
+}
+
+async function checkAnswer(answer) {
+  switch (answer) {
+    case "thumbUp":
+      if (awaitingConfirmation) {
+        switch (awaitingConfirmation.reason) {
+          case "stop":
+            break;
+          case "skip":
+            break;
+        }
+      }
+      break;
+    case "countOne":
+      if (awaitingConfirmation) {
+        return;
+      }
+      if (answerOne.innerHTML === screen.correctAnswer) {
+        answeredCorrectly(answerOne);
+      } else {
+        answeredIncorrectly(answerOne);
+      }
+      break;
+    case "countTwo":
+      if (awaitingConfirmation) {
+        return;
+      }
+      if (answerTwo.innerHTML === screen.correctAnswer) {
+        answeredCorrectly(answerTwo);
+      } else {
+        answeredIncorrectly(answerTwo);
+      }
+      break;
+    case "countThree":
+      if (awaitingConfirmation) {
+        return;
+      }
+      if (answerThree.innerHTML === screen.correctAnswer) {
+        answeredCorrectly(answerThree);
+      } else {
+        answeredIncorrectly(answerThree);
+      }
+      break;
+    case "countFour":
+      if (awaitingConfirmation) {
+        return;
+      }
+      if (answerFour.innerHTML === screen.correctAnswer) {
+        answeredCorrectly(answerFour);
+      } else {
+        answeredIncorrectly(answerFour);
+      }
+      break;
+    case "countFive":
+      if (!awaitingConfirmation) {
+        awaitingConfirmation = {
+          reason: "stop",
+          screenNumber: activeContent,
+          sceneNumber: currentScene,
+        };
+        currentScene = 0;
+        activeContent = 0;
+        drawScene();
+      }
+      break;
+    case "closedFist":
+      if (awaitingConfirmation) {
+        console.log(`${awaitingConfirmation.reason} | Cancelled`);
+        currentScene = sceneNumber;
+        activeContent = screenNumber;
+        awaitingConfirmation = null;
+        drawScene();
+      } else {
+        awaitingConfirmation = {
+          reason: "skip",
+          screenNumber: activeContent,
+          sceneNumber: currentScene,
+        };
+        currentScene = 0;
+        activeContent = 1;
+        drawScene();
+      }
+      break;
   }
 }
 
@@ -431,7 +596,3 @@ function drawPath(ctx, points, closePath) {
   }
   ctx.stroke(region);
 }
-
-//
-// start
-//

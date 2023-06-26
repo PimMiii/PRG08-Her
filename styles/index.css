@@ -48,7 +48,8 @@ div#overlay {
     margin-block: 20vh;
 }
 #overlay #question {
-
+    margin-top: 5vh;
+    height: fit-content;
     width: 80%;
     text-align: center;
 }
@@ -65,10 +66,26 @@ button {
     cursor:pointer;
 }
 
-#overlay #answers div {
-    width: 45vw;
-    background-color: rgba(255,255,255,0.5);
+#overlay div#answersDisplay {
+    width: 80vw;
+    position: fixed;
+    bottom: 200;
+    background-color: unset;
+    border: none;
+    display: grid;
+    grid-template-columns: 45% 45%;
+    gap: 10%;
+    justify-items: center;
+    text-align: center;
+    
+}
+#overlay div#answersDisplay h2 {
+    width: 100%;
+    border-radius: 25px 5px 25px 5px;
+    border: 2px solid aqua;
+    background-color: rgba(46,26,71,0.5);
     color: white;
+    height: max-content;
 }
 
 #overlay div#classifierResult{
@@ -78,6 +95,8 @@ button {
     margin-block: 2px;
     padding-top: 5px;
     vertical-align: middle;
+    position: fixed;
+    bottom: 5
 
 }
 
