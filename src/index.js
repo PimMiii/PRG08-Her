@@ -34,6 +34,7 @@ const answerFour = document.querySelector("#answerFour");
 // explainer
 const explainer = document.querySelector("#explainer");
 const explainerTitle = document.querySelector("#explainerTitle");
+const explainerCredits = document.querySelector("#explainerCredits");
 const explainerParagraph = document.querySelector("#explainerParagraph");
 const explainerBTN = document.querySelector("#explainerBTN");
 // clasifierResult display
@@ -42,7 +43,7 @@ const poseDisplay = document.querySelector("#poseDisplay");
 const confidenceDisplay = document.querySelector("#confidenceDisplay");
 
 // content setup
-let currentScene = 4;
+let currentScene = 2;
 let contentLength;
 let activeContent = 0;
 scenes = [
@@ -73,6 +74,7 @@ scenes = [
     ],
   },
   {
+    // start here : 2
     title: "explainer",
     content: [
       {
@@ -196,6 +198,7 @@ function drawScene() {
       break;
     case "pose-explainer":
       explainer.hidden = false;
+      explainerCredits.hidden = true;
       classifierResult.hidden = false;
       explainerTitle.innerHTML = screen.title;
       explainerParagraph.innerHTML = screen.text;
