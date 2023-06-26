@@ -78,7 +78,7 @@ scenes = [
         imgSource: "",
       },
       {
-        title: "Anscwer C",
+        title: "Answer C",
         tag: "countThree",
         text: "hold up your <strong><font color='aqua'>index-,middle-, and ringfinger</font></strong>, to pick answer C",
         imgSource: "",
@@ -86,7 +86,7 @@ scenes = [
       {
         title: "Answer D",
         tag: "countFour",
-        text: "hold up your <strong><font color='aqua'>index-, middle-, ring-, and little finger</font></strong>, to pick answer D",
+        text: "hold up your <strong><font color='aqua'>index-, middle-, ring-, and little finger</font></strong>, to pick answer D<br/> NOTE: this pose is easiest recognised by the model if you hold your fingers together and your palm to the camera",
         imgSource: "",
       },
       {
@@ -206,36 +206,36 @@ function prepLandmarks(pose) {
 async function classifyPose(pose) {
   const classification = await nn.classify(prepLandmarks(pose));
   if (classification) {
-    savePrediction(classification[0]);
+    await savePrediction(classification[0]);
     drawPredictions(classification[0]);
   }
 }
 
-function savePrediction(classification) {
+async function savePrediction(classification) {
   savedPredictions.push(classification);
   if (savedPredictions.length > saveBuffer) {
     savedPredictions.shift();
   }
   if (savedPredictions.length === saveBuffer) {
-    checkSavedPredictions();
+    await checkSavedPredictions();
   }
 }
 
-function checkSavedPredictions() {
+async function checkSavedPredictions() {
   const allEqual = (arr) => arr.every((v) => v.label === arr[0].label);
 
   if (allEqual(savedPredictions)) {
-    handleAnswer(savedPredictions[0].label);
+    await handleAnswer(savedPredictions[0].label);
   } else {
     console.log("Not all equal");
   }
 }
 
-function handleAnswer(answer) {
+async function handleAnswer(answer) {
   predictFlag = false;
   switch (scenes[currentScene].title) {
     case "pose-explainer":
-      checkPose(answer);
+      await checkPose(answer);
       break;
     case "questions":
       checkAnswer(answer);
@@ -245,15 +245,17 @@ function handleAnswer(answer) {
       break;
   }
 
-  setTimeout(() => {
-    predictFlag = true;
-  }, 1000);
+  predictFlag = true;
 }
 
-function checkPose(answer) {
+async function checkPose(answer) {
   if (answer === screen.tag) {
     console.log(`correct pose| ${answer}`);
-    explainerClickHandler();
+    explainerTitle.style.color = "rgba(63, 195, 128)";
+    await setTimeout(() => {
+      explainerTitle.style.color = "white";
+      explainerClickHandler();
+    }, 1000);
     savedPredictions = [];
   } else {
     console.log(`wrong pose| expected: ${screen.tag}, answered: ${answer}`);
