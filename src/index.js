@@ -42,11 +42,27 @@ const classifierResult = document.querySelector("#classifierResult");
 const poseDisplay = document.querySelector("#poseDisplay");
 const confidenceDisplay = document.querySelector("#confidenceDisplay");
 
+// scoreboard
+const scoreboard = document.querySelector("#scoreboard");
+const scoreDisplay = document.querySelector("#scoreDisplay");
+const skipsDisplay = document.querySelector("#skipsDisplay");
+
+// confirmation
+const confirmationDialogue = document.querySelector("#confirmationDialogue");
+const confirmationTitle = document.querySelector("#confirmationTitle");
+const confirmationText = document.querySelector("#confirmationText");
+
+// endscreen
+const endScreen = document.querySelector("#endScreen");
+const endScreenTitle = document.querySelector("#endScreenTitle");
+const endScreenText = document.querySelector("#endScreenText");
+const endScreenBTN = document.querySelector("#endScreenBTN");
+
 // content setup
-let currentScene = 2;
+let currentScene = 4;
 let contentLength;
 let activeContent = 0;
-scenes = [
+let scenes = [
   {
     title: "confirmation",
     content: [
@@ -69,7 +85,7 @@ scenes = [
       },
       {
         title: "GAME OVER",
-        text: "<strong><font color='crimson'>Sorry, you've answered too many questions wrong.<br/>You are not the Handpose Millionaire.</font><strong><br/>To play again please reload the page.",
+        text: "<strong><font color='crimson'>Sorry, that was the wrong answer!<br/>You are not the Handpose Millionaire.</font><strong><br/>To play again please reload the page.",
       },
     ],
   },
@@ -87,7 +103,7 @@ scenes = [
       {
         title: "Welcome to Handpose Millionaires.",
         text: `You will have to answer 15 questions correctly to win this game <br/> Answer correctly and you get a point. Answer wrong, and it's game over. Simple really.<br/>
-             But to help you out, in case the questions are too difficult, you get a total of 3 skips. <br/> This will replace the question you skipped with another question.<br/>`,
+             Skips have not yet been implemented`,
         button: "Take me to the poses!",
       },
     ],
@@ -147,6 +163,7 @@ const saveBuffer = 50;
 let correctQuestions = [];
 let incorrectQuestions = [];
 let skippedQuestions = [];
+const allowedSkips = 3;
 let awaitingConfirmation = null;
 
 // prediction Flag
@@ -186,20 +203,41 @@ function drawScene() {
   const scene = scenes[currentScene];
   contentLength = scene.content.length;
   screen = scene.content[activeContent];
-  switch (scenes[currentScene].title) {
-    case "confirmation":
-      break;
+  switch (scene.title) {
     case "explainer":
+      questionDisplay.hidden = true;
       explainer.hidden = false;
+      endScreen.hidden = true;
+      answersDisplay.hidden = true;
+      scoreboard.hidden = true;
+      confirmationDialogue.hidden = true;
+      classifierResult.hidden = true;
+
+      answerOne.hidden = true;
+      answerTwo.hidden = true;
+      answerThree.hidden = true;
+      answerFour.hidden = true;
+
       explainerTitle.innerHTML = screen.title;
       explainerParagraph.innerHTML = screen.text;
       explainerBTN.innerHTML = screen.button;
       explainerBTN.disabled = false;
       break;
     case "pose-explainer":
+      questionDisplay.hidden = true;
       explainer.hidden = false;
-      explainerCredits.hidden = true;
+      endScreen.hidden = true;
+      answersDisplay.hidden = true;
+      scoreboard.hidden = true;
+      confirmationDialogue.hidden = true;
       classifierResult.hidden = false;
+
+      answerOne.hidden = true;
+      answerTwo.hidden = true;
+      answerThree.hidden = true;
+      answerFour.hidden = true;
+
+      explainerCredits.hidden = true;
       explainerTitle.innerHTML = screen.title;
       explainerParagraph.innerHTML = screen.text;
       explainerBTN.innerHTML = screen.button;
@@ -210,29 +248,75 @@ function drawScene() {
       predictFlag = true;
       break;
     case "questions":
-      // turn off explainer screens
+      questionDisplay.hidden = false;
       explainer.hidden = true;
+      endScreen.hidden = true;
+      answersDisplay.hidden = false;
+      scoreboard.hidden = false;
+      confirmationDialogue.hidden = true;
       classifierResult.hidden = false;
-      explainerBTN.disabled = true;
-      explainerBTN.hidden = true;
+
+      answerOne.hidden = false;
+      answerTwo.hidden = false;
+      answerThree.hidden = false;
+      answerFour.hidden = false;
+
       predictFlag = true;
 
       // turn on question and answers
-      questionDisplay.hidden = false;
       console.log(screen);
       questionText.innerHTML = screen.question.text;
 
       //answers
-      answersDisplay.hidden = false;
       answerOne.innerHTML = screen.answers[0];
-      answerOne.hidden = false;
       answerTwo.innerHTML = screen.answers[1];
-      answerTwo.hidden = false;
       answerThree.innerHTML = screen.answers[2];
-      answerThree.hidden = false;
       answerFour.innerHTML = screen.answers[3];
-      answerFour.hidden = false;
+
       break;
+    case "endscreen":
+      questionDisplay.hidden = true;
+      explainer.hidden = true;
+      endScreen.hidden = false;
+      answersDisplay.hidden = true;
+      scoreboard.hidden = false;
+      confirmationDialogue.hidden = true;
+      classifierResult.hidden = true;
+
+      answerOne.hidden = true;
+      answerTwo.hidden = true;
+      answerThree.hidden = true;
+      answerFour.hidden = true;
+
+      endScreenTitle.innerHTML = screen.title;
+      endScreenText.innerHTML = screen.text;
+      endScreenBTN.hidden = false;
+      endScreenBTN.disabled = false;
+      endScreenBTN.addEventListener("click", () => {
+        location.reload();
+      });
+      break;
+    case "confirmation":
+      questionDisplay.hidden = true;
+      explainer.hidden = true;
+      endScreen.hidden = true;
+      answersDisplay.hidden = true;
+      scoreboard.hidden = false;
+      confirmationDialogue.hidden = false;
+      classifierResult.hidden = false;
+
+      answerOne.hidden = true;
+      answerTwo.hidden = true;
+      answerThree.hidden = true;
+      answerFour.hidden = true;
+
+      confirmationTitle.innerHTML = screen.title;
+      confirmationText.innerHTML = screen.text;
+
+      predictFlag = true;
+
+      break;
+
     default:
       currentScene = 1;
       break;
@@ -303,6 +387,9 @@ async function handleAnswer(answer) {
     case "questions":
       await checkAnswer(answer);
       break;
+    case "confirmation":
+      await checkAnswer(answer);
+      break;
     default:
       console.log("something went wrong");
       break;
@@ -326,23 +413,33 @@ async function checkPose(answer) {
 
 function answeredCorrectly(asnwerNode) {
   correctQuestions.push(activeContent);
-  asnwerNode.style.backgroundColor = "rgba(63, 195, 128, 0.5)";
+  scoreDisplay.innerHTML = `Correct Answers: ${correctQuestions.length}/15`;
+  asnwerNode.style.backgroundColor = "rgba(63, 195, 128, 0.8)";
   savedPredictions = [];
-  setTimeout(() => {
-    explainerClickHandler();
-    asnwerNode.style.backgroundColor = "rgba(46,26,71,0.5)";
-    predictFlag = true;
-  }, 1000);
+  if (correctQuestions.length < 15) {
+    setTimeout(() => {
+      explainerClickHandler();
+      asnwerNode.style.backgroundColor = "rgba(46,26,71,0.8)";
+      predictFlag = true;
+    }, 1000);
+  } else {
+    activeContent = 0;
+    currentScene = 1;
+    setTimeout(() => {
+      drawScene();
+    }, 1000);
+  }
 }
 
 function answeredIncorrectly(answerNode) {
   incorrectQuestions.push(activeContent);
-  answerNode.style.backgroundColor = "crimson";
+  answerNode.style.backgroundColor = "rgba(255,0,0,0.8)";
   savedPredictions = [];
   setTimeout(() => {
-    explainerClickHandler();
-    answerNode.style.backgroundColor = "rgba(46,26,71,0.5)";
-    predictFlag = true;
+    answerNode.style.backgroundColor = "rgba(46,26,71,0.8)";
+    currentScene = 1;
+    activeContent = 1;
+    drawScene();
   }, 1000);
 }
 
@@ -356,6 +453,8 @@ async function checkAnswer(answer) {
           case "skip":
             break;
         }
+      } else {
+        predictFlag = true;
       }
       break;
     case "countOne":
@@ -413,10 +512,13 @@ async function checkAnswer(answer) {
     case "closedFist":
       if (awaitingConfirmation) {
         console.log(`${awaitingConfirmation.reason} | Cancelled`);
-        currentScene = sceneNumber;
-        activeContent = screenNumber;
-        awaitingConfirmation = null;
-        drawScene();
+        savedPredictions = [];
+        setTimeout(() => {
+          currentScene = awaitingConfirmation.sceneNumber;
+          activeContent = awaitingConfirmation.screenNumber;
+          awaitingConfirmation = null;
+          drawScene();
+        }, 1000);
       } else {
         awaitingConfirmation = {
           reason: "skip",

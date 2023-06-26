@@ -6,11 +6,6 @@ body {
     font-family: sans-serif;
     background-color: #bbd5dc;
     overflow: hidden;
-    /* centered column with flex
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start; */
 }
 
 div#overlay {
@@ -31,31 +26,33 @@ div#overlay {
 #overlay>div{
     border-radius: 25px 5px 25px 5px;
     border: 2px solid aqua;
-    background-color: rgba(46,26,71,0.5);
+    background-color: rgba(46,26,71,0.8);
     color: white;
-
 }
+
 #overlay #title {
     margin-top: 1vh;
     width: 80%;
     text-align: center;
-
 }
-#overlay #explainer {
 
+#overlay #explainer {
     width: 80%;
     text-align: center;
-    margin-block: 20vh;
+    margin-block: 10vh;
 }
+
 #overlay #question {
     margin-top: 5vh;
     height: fit-content;
     width: 80%;
     text-align: center;
 }
+
 #overlat a{
     color: aqua;
 }
+
 #overlay a:visited{
     
     color:aqua;
@@ -83,11 +80,29 @@ button {
     width: 100%;
     border-radius: 25px 5px 25px 5px;
     border: 2px solid aqua;
-    background-color: rgba(46,26,71,0.5);
+    background-color: rgba(46,26,71,0.8);
     color: white;
     height: max-content;
 }
 
+#overlay div#scoreboard {
+    margin-top: 1vh;
+    width: 50vw;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+#overlay div#endScreen {
+    width: 80%;
+    text-align: center;
+    margin-block: 10vh;
+}
+#overlay div#confirmationDialogue {
+    width: 80%;
+    text-align: center;
+    margin-block: 10vh;
+}
 #overlay div#classifierResult{
     width: 50%;
     height: 5vh;
