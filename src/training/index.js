@@ -21,7 +21,7 @@ function loadData() {
 }
 
 function prepareData(data) {
-  data.sort(() => Math.random() > 0.5);
+  data.sort(() => Math.random() - 0.5);
 
   trainingData = data.slice(0, Math.floor(data.length * 0.8));
   testData = data.slice(Math.floor(data.length * 0.8) + 1);
