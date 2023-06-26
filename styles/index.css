@@ -6,30 +6,80 @@ body {
     font-family: sans-serif;
     background-color: #bbd5dc;
     overflow: hidden;
-    /* centered column with flex */
+    /* centered column with flex
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: flex-start; */
 }
 
-#array {
-    background-color: rgb(36, 32, 65);
+div#overlay {
+    background: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+#overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; 
+}
+#overlay>div{
+    border-radius: 25px 5px 25px 5px;
+    border: 2px solid aqua;
+
+}
+#overlay #title {
+    background-color: rgba(46,26,71,0.5);
     color: white;
-    font-family: monospace;
-    min-height: 20px;
-    width: 720px;
-    word-wrap: break-word;
+    width: 80%;
+    text-align: center;
+
+}
+#overlay #explainer {
+    background-color: rgba(46,26,71,0.5);
+    color: white;
+    width: 80%;
+    text-align: center;
+    margin-block: 20vw
+}
+#overlay #question {
+    background-color: rgba(46,26,71,0.5);
+    color: white;
+    width: 80%;
+    text-align: center;
+}
+#overlat a{
+    color: aqua;
+}
+#overlay a:visited{
+    
+    color:aqua;
 }
 
+button {
+    margin: 10px;
+    cursor:pointer;
+}
+
+#overlay #answers div {
+    width: 45vw;
+    background-color: rgba(255,255,255,0.5);
+    color: white;
+}
 video {
     -webkit-transform: scaleX(-1);
     transform: scaleX(-1);
     display: none;
     width: auto;
     height: auto;
-}
-
-button {
-    cursor: pointer;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
 }

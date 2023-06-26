@@ -33,9 +33,32 @@
 </head>
 
 <body>
-  <h1>Who wants to be a handpose millionaire</h1>
   <div id="container">
     <video id="video" playsinline></video>
     <canvas id="output"></canvas>
+  </div>
+  <div id="overlay">
+    <div id="title">
+      <h1>Handpose Millionaires</h1>
+    </div>
+    <div id="explainer">
+      <h2 id="explainerTitle">Welcome to Handpose Millionaires.</h1>
+        <h3>Handpose Millionaires is a trivia game, using <a href="https://the-trivia-api.com/">'The Trivia API'</a></h3>
+        <p id="explainerParagraph">in this trivia game you use your hands to answer the questions! <br/>
+          So please make sure your camera is turned on, and that this site has been granted permissions to use the camera. <br/>
+          But dont worry, all the image processing and pose recognition is happening locally in your browser.<br/> So nothing is send to a server!
+        </p>
+        <button id="explainerBTN" disabled>Loading...</button>
+    </div>
+    <div id="question" hidden>
+      <h2>Question</h2>
+    </div>
+    <div id="answers" hidden>
+      <div id="clockDisplay">clock</div>
+      <div id="answerOne">One</div>
+      <div id="answerTwo">Two</div>
+      <div id="answerThree">Three</div>
+      <div id="answerFour">Four</div>
+    </div>
   </div>
 </body>
