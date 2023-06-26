@@ -40,7 +40,7 @@ scenes = [
       },
       {
         title: "Welcome to Handpose Millionaires.",
-        text: `You will have to answer 15 answers correctly to win this game <br/> Answer correctly and you get a point. Answer wrong, and it's game over. Simple really.<br/>
+        text: `You will have to answer 15 questions correctly to win this game <br/> Answer correctly and you get a point. Answer wrong, and it's game over. Simple really.<br/>
              But to help you out, in case the questions are too difficult, you get a total of 3 skips. <br/> This will replace the question you skipped with another question.<br/>`,
         button: "Take me to the poses!",
       },
@@ -51,36 +51,43 @@ scenes = [
     content: [
       {
         title: "Answer A",
+        tag: "",
         text: "hold up your <strong><font color='aqua'>indexfinger</font></strong>, to pick answer A",
         imgSource: "",
       },
       {
         title: "Answer B",
+        tag: "",
         text: "hold up your <strong><font color='aqua'>index- and middlefinger</font></strong>, to pick answer B",
         imgSource: "",
       },
       {
         title: "Anscwer C",
+        tag: "",
         text: "hold up your <strong><font color='aqua'>index-,middle-, and ringfinger</font></strong>, to pick answer C",
         imgSource: "",
       },
       {
         title: "Answer D",
+        tag: "",
         text: "hold up your <strong><font color='aqua'>index-, middle-, ring-, and little finger</font></strong>, to pick answer D",
         imgSource: "",
       },
       {
         title: "Skip Question",
-        text: "to skip a question hold up a <strong><font color='aqua'>closed fist</font></strong>. NOTE: this works best with fingers towards the camera. <br/> This pose is also used as cancel.",
+        tag: "",
+        text: "to skip a question hold up a <strong><font color='aqua'>closed fist</font></strong>. <i>NOTE: this works best with fingers towards the camera.</i> <br/> This pose is also used as cancel.",
         imgSource: "",
       },
       {
         title: "Stop Game",
+        tag: "",
         text: "you can stop the game at any time by holding up <strong><font color='aqua'>all of your fingers.</font></strong>",
         imgSource: "",
       },
       {
         title: "Accept",
+        tag: "",
         text: "The game will sometimes ask for confirmation, for example if it isnt quite sure it's recognized the right handpose. <br/> To give confirmation give the camera a <strong><font color='aqua'>thumbs up.</font></strong>",
         imgSource: "",
       },
@@ -129,7 +136,7 @@ function drawScene() {
       break;
   }
 }
-
+// handle advancement of the explainer scenes/screens
 function explainerClickHandler() {
   if (activeContent + 1 < contentLength) {
     activeContent++;
