@@ -43,7 +43,7 @@ const poseDisplay = document.querySelector("#poseDisplay");
 const confidenceDisplay = document.querySelector("#confidenceDisplay");
 
 // content setup
-let currentScene = 2;
+let currentScene = 4;
 let contentLength;
 let activeContent = 0;
 scenes = [
@@ -320,6 +320,7 @@ async function checkPose(answer) {
     savedPredictions = [];
   } else {
     console.log(`wrong pose| expected: ${screen.tag}, answered: ${answer}`);
+    predictFlag = true;
   }
 }
 
