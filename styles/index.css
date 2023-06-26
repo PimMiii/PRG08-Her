@@ -31,25 +31,24 @@ div#overlay {
 #overlay>div{
     border-radius: 25px 5px 25px 5px;
     border: 2px solid aqua;
+    background-color: rgba(46,26,71,0.5);
+    color: white;
 
 }
 #overlay #title {
-    background-color: rgba(46,26,71,0.5);
-    color: white;
+    margin-top: 1vh;
     width: 80%;
     text-align: center;
 
 }
 #overlay #explainer {
-    background-color: rgba(46,26,71,0.5);
-    color: white;
+
     width: 80%;
     text-align: center;
     margin-block: 20vh;
 }
 #overlay #question {
-    background-color: rgba(46,26,71,0.5);
-    color: white;
+
     width: 80%;
     text-align: center;
 }
@@ -71,6 +70,29 @@ button {
     background-color: rgba(255,255,255,0.5);
     color: white;
 }
+
+#overlay div#classifierResult{
+    width: 50%;
+    height: 5vh;
+    font-size: 1em;
+    margin-block: 2px;
+    padding-top: 5px;
+    vertical-align: middle;
+
+}
+
+#overlay div#classifierResult>div {
+    display: flex;
+    flex-direction: row;
+    padding: unset;
+    justify-content: space-around;
+    
+}
+#overlay div#classifierResult>div p {
+    margin: unset;
+    margin-block: 2px;
+}
+
 video {
     -webkit-transform: scaleX(-1);
     transform: scaleX(-1);

@@ -5,6 +5,17 @@ const log = document.querySelector("#array");
 const VIDEO_WIDTH = window.innerWidth;
 const VIDEO_HEIGHT = window.innerHeight;
 
+//Neural Network
+const NNoptions = {
+  task: "classification", // or 'regression'
+};
+const nn = ml5.neuralNetwork(NNoptions);
+const NNmodelDetails = {
+  model: "./src/model/model.json",
+  metadata: "./src/model/model_meta.json",
+  weights: "./src/model/model.weights.bin",
+};
+
 //setup trivia
 const triviaBaseUrl = "https://the-trivia-api.com/v2/";
 let questions = null;
@@ -12,21 +23,26 @@ let questions = null;
 // setup overlay
 const overlay = document.querySelector("#overlay");
 const question = document.querySelector("#question");
+// answers
 const answers = document.querySelector("#answers");
 const answerOne = document.querySelector("#answerOne");
 const answerTwo = document.querySelector("#answerOne");
 const answerThree = document.querySelector("#answerOne");
 const answerFour = document.querySelector("#answerOne");
 const clockDisplay = document.querySelector("#clockDisplay");
+// explainer
 const explainer = document.querySelector("#explainer");
 const explainerTitle = document.querySelector("#explainerTitle");
 const explainerParagraph = document.querySelector("#explainerParagraph");
 const explainerBTN = document.querySelector("#explainerBTN");
+// clasifierResult display
+const classifierResult = document.querySelector("#classifierResult");
+const poseDisplay = document.querySelector("#poseDisplay");
+const confidenceDisplay = document.querySelector("#confidenceDisplay");
 
 // content setup
 let contentLength;
 let activeContent = 0;
-
 scenes = [
   {
     title: "explainer",
@@ -51,43 +67,43 @@ scenes = [
     content: [
       {
         title: "Answer A",
-        tag: "",
+        tag: "countOne",
         text: "hold up your <strong><font color='aqua'>indexfinger</font></strong>, to pick answer A",
         imgSource: "",
       },
       {
         title: "Answer B",
-        tag: "",
+        tag: "countTwo",
         text: "hold up your <strong><font color='aqua'>index- and middlefinger</font></strong>, to pick answer B",
         imgSource: "",
       },
       {
         title: "Anscwer C",
-        tag: "",
+        tag: "countThree",
         text: "hold up your <strong><font color='aqua'>index-,middle-, and ringfinger</font></strong>, to pick answer C",
         imgSource: "",
       },
       {
         title: "Answer D",
-        tag: "",
+        tag: "countFour",
         text: "hold up your <strong><font color='aqua'>index-, middle-, ring-, and little finger</font></strong>, to pick answer D",
         imgSource: "",
       },
       {
         title: "Skip Question",
-        tag: "",
+        tag: "closedFist",
         text: "to skip a question hold up a <strong><font color='aqua'>closed fist</font></strong>. <i>NOTE: this works best with fingers towards the camera.</i> <br/> This pose is also used as cancel.",
         imgSource: "",
       },
       {
         title: "Stop Game",
-        tag: "",
+        tag: "countFive",
         text: "you can stop the game at any time by holding up <strong><font color='aqua'>all of your fingers.</font></strong>",
         imgSource: "",
       },
       {
         title: "Accept",
-        tag: "",
+        tag: "thumbUp",
         text: "The game will sometimes ask for confirmation, for example if it isnt quite sure it's recognized the right handpose. <br/> To give confirmation give the camera a <strong><font color='aqua'>thumbs up.</font></strong>",
         imgSource: "",
       },
@@ -96,6 +112,12 @@ scenes = [
 ];
 let currentScene = 0;
 let savedPoses = [];
+
+// prediction Flag
+let predictFlag = false;
+
+// code
+nn.load(NNmodelDetails, modelLoaded);
 
 async function fetchQuestions(url) {
   const response = await fetch(url);
@@ -125,11 +147,13 @@ function drawScene() {
       break;
     case 1:
       explainer.hidden = false;
+      classifierResult.hidden = false;
       explainerTitle.innerHTML = screen.title;
       explainerParagraph.innerHTML = screen.text;
       explainerBTN.innerHTML = screen.button;
       explainerBTN.disabled = true;
       explainerBTN.hidden = true;
+      predictFlag = true;
       break;
     default:
       currentScene = 0;
@@ -148,6 +172,34 @@ function explainerClickHandler() {
   } else {
     console.log("something went wrong");
   }
+}
+
+function modelLoaded() {
+  console.log("model loaded");
+  main();
+}
+
+function prepLandmarks(pose) {
+  let poseLandmarks = {};
+  for (const landmarkIndex of Object.keys(pose.landmarks)) {
+    poseLandmarks[`l${landmarkIndex}x`] = pose.landmarks[landmarkIndex][0];
+    poseLandmarks[`l${landmarkIndex}y`] = pose.landmarks[landmarkIndex][1];
+  }
+  return poseLandmarks;
+}
+
+async function classifyPose(pose) {
+  const classification = await nn.classify(prepLandmarks(pose));
+  if (classification) {
+    drawPredictions(classification[0]);
+  }
+}
+
+function drawPredictions(classification) {
+  poseDisplay.innerHTML = classification.label;
+  confidenceDisplay.innerHTML = `${(classification.confidence * 100).toFixed(
+    2
+  )}%`;
 }
 
 //
@@ -209,12 +261,12 @@ async function startLandmarkDetection(video) {
   video.height = videoHeight;
 
   ctx.clearRect(0, 0, videoWidth, videoHeight);
-  ctx.strokeStyle = "red";
-  ctx.fillStyle = "red";
+  ctx.strokeStyle = "yellow";
+  ctx.fillStyle = "yellow";
+  ctx.lineWidth = 5;
 
   ctx.translate(canvas.width, 0);
   ctx.scale(-1, 1); // video omdraaien omdat webcam in spiegelbeeld is
-
   predictLandmarks();
 }
 
@@ -234,32 +286,33 @@ async function predictLandmarks() {
     canvas.height
   );
   // prediction!
-  const predictions = await model.estimateHands(video); // ,true voor flip
-  if (predictions.length > 0) {
-    drawHand(ctx, predictions[0].landmarks, predictions[0].annotations);
+  if (predictFlag) {
+    const predictions = await model.estimateHands(video); // ,true voor flip
+    let classifications = [];
+    if (predictions.length > 0) {
+      drawHand(ctx, predictions[0].landmarks, predictions[0].annotations);
 
-    //console.log(predictions[0].landmarks);
-    const boundingBox = predictions[0].boundingBox;
-    const pose = {
-      landmarks: predictions[0].landmarks.reduce(
-        (accumulator, currentValue) => {
-          accumulator.push([
-            //x
-            (currentValue[0] - boundingBox.topLeft[0]) /
-              (boundingBox.bottomRight[0] - boundingBox.topLeft[0]),
-            //y
-            (currentValue[1] - boundingBox.topLeft[1]) /
-              (boundingBox.bottomRight[1] - boundingBox.topLeft[1]),
-          ]);
-          return accumulator;
-        },
-        []
-      ),
-    };
-    //console.log(pose);
-    savedPoses.push(pose);
+      //console.log(predictions[0].landmarks);
+      const boundingBox = predictions[0].boundingBox;
+      const pose = {
+        landmarks: predictions[0].landmarks.reduce(
+          (accumulator, currentValue) => {
+            accumulator.push([
+              //x
+              (currentValue[0] - boundingBox.topLeft[0]) /
+                (boundingBox.bottomRight[0] - boundingBox.topLeft[0]),
+              //y
+              (currentValue[1] - boundingBox.topLeft[1]) /
+                (boundingBox.bottomRight[1] - boundingBox.topLeft[1]),
+            ]);
+            return accumulator;
+          },
+          []
+        ),
+      };
+      await classifyPose(pose);
+    }
   }
-
   // 60 keer per seconde is veel, gebruik setTimeout om minder vaak te predicten
   requestAnimationFrame(predictLandmarks);
   //setTimeout(() => predictLandmarks(), 1000);
@@ -292,7 +345,7 @@ function drawHand(ctx, keypoints, annotations) {
 //
 function drawPoint(ctx, y, x, r) {
   ctx.beginPath();
-  ctx.arc(x, y, r, 0, 2 * Math.PI);
+  ctx.arc(x, y, r, 0, 4 * Math.PI);
   ctx.fill();
 }
 //
@@ -315,4 +368,3 @@ function drawPath(ctx, points, closePath) {
 //
 // start
 //
-main();

@@ -29,6 +29,7 @@
     defer
     src="https://unpkg.com/@tensorflow-models/handpose@0.0.6/dist/handpose.js"
   ></script>
+  <script defer src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
   <script defer src="./src/index.js"></script>
 </head>
 
@@ -59,6 +60,16 @@
       <div id="answerTwo">Two</div>
       <div id="answerThree">Three</div>
       <div id="answerFour">Four</div>
+    </div>
+    <div id="classifierResult" hidden>
+      <div id="prediction">
+      <p>Pose Prediction:</p>
+      <p id="poseDisplay">Pose</p>
+    </div>
+    <div id="confidence">
+        <p>NN Confidence: </p>
+        <p id="confidenceDisplay">00%</p>
+    </div>
     </div>
   </div>
 </body>
