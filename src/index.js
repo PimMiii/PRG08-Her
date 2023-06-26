@@ -111,7 +111,9 @@ scenes = [
   },
 ];
 let currentScene = 0;
-let savedPoses = [];
+let savedPredictions = [];
+let screen;
+const saveBuffer = 50;
 
 // prediction Flag
 let predictFlag = false;
@@ -129,14 +131,27 @@ async function fetchQuestions(url) {
   const questions = await response.json().catch((error) => {
     console.log(error);
   });
-  console.log(questions);
+  let questionArray = [];
+  for (const question of questions) {
+    let answers = [];
+    answers.push(question.correctAnswer);
+    for (const incAnswer of question.incorrectAnswers) {
+      answers.push(incAnswer);
+    }
+    question.answers = answers.sort(() => Math.random() - 0.5);
+    questionArray.push(question);
+  }
+  scenes.push({
+    title: "questions",
+    content: questionArray,
+  });
   return questions;
 }
 
 function drawScene() {
   const scene = scenes[currentScene];
   contentLength = scene.content.length;
-  let screen = scene.content[activeContent];
+  screen = scene.content[activeContent];
   switch (currentScene) {
     case 0:
       explainer.hidden = false;
@@ -191,7 +206,57 @@ function prepLandmarks(pose) {
 async function classifyPose(pose) {
   const classification = await nn.classify(prepLandmarks(pose));
   if (classification) {
+    savePrediction(classification[0]);
     drawPredictions(classification[0]);
+  }
+}
+
+function savePrediction(classification) {
+  savedPredictions.push(classification);
+  if (savedPredictions.length > saveBuffer) {
+    savedPredictions.shift();
+  }
+  if (savedPredictions.length === saveBuffer) {
+    checkSavedPredictions();
+  }
+}
+
+function checkSavedPredictions() {
+  const allEqual = (arr) => arr.every((v) => v.label === arr[0].label);
+
+  if (allEqual(savedPredictions)) {
+    handleAnswer(savedPredictions[0].label);
+  } else {
+    console.log("Not all equal");
+  }
+}
+
+function handleAnswer(answer) {
+  predictFlag = false;
+  switch (scenes[currentScene].title) {
+    case "pose-explainer":
+      checkPose(answer);
+      break;
+    case "questions":
+      checkAnswer(answer);
+      break;
+    default:
+      console.log("something went wrong");
+      break;
+  }
+
+  setTimeout(() => {
+    predictFlag = true;
+  }, 1000);
+}
+
+function checkPose(answer) {
+  if (answer === screen.tag) {
+    console.log(`correct pose| ${answer}`);
+    explainerClickHandler();
+    savedPredictions = [];
+  } else {
+    console.log(`wrong pose| expected: ${screen.tag}, answered: ${answer}`);
   }
 }
 
