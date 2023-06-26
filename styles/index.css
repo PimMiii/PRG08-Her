@@ -45,7 +45,7 @@ div#overlay {
     color: white;
     width: 80%;
     text-align: center;
-    margin-block: 20vw
+    margin-block: 20vh;
 }
 #overlay #question {
     background-color: rgba(46,26,71,0.5);
